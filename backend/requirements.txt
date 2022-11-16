@@ -3,6 +3,7 @@ django
 djangorestframework
 django-filter
 djangorestframework-simplejwt
+django-colorfield
 PyJWT
 drf-yasg
 gunicorn
