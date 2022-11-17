@@ -29,24 +29,24 @@ class Follow(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='follower',
-        verbose_name='Подписчик',
+        related_name="follower",
+        verbose_name="Подписчик",
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='following',
-        verbose_name='Автор рецепта',
+        related_name="following",
+        verbose_name="Автор",
     )
 
     class Meta:
         constraints = [
             UniqueConstraint(
-                fields=['user', 'author'], name='user_author_unique'
+                fields=["user", "author"], name="user_author_unique"
             )
         ]
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
 
     def __str__(self):
-        return f'{self.user} подписался на {self.author}'
+        return f"{self.user} подписался на {self.author}"
