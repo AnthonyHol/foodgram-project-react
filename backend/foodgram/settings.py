@@ -5,7 +5,9 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-d4$wamciv+#54@#4q-doza%kwn3mfmw2cn-3j&!^z0ktuh*g5z"
+SECRET_KEY = (
+    "django-insecure-d4$wamciv+#54@#4q-doza%kwn3mfmw2cn-3j&!^z0ktuh*g5z"
+)
 
 DEBUG = True
 
@@ -20,11 +22,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "colorfield",
     "rest_framework",
     "rest_framework.authtoken",
     "djoser",
-    "colorfield",
     "users",
+    "recipes",
 ]
 
 MIDDLEWARE = [
@@ -126,6 +129,6 @@ DJOSER = {
     },
     'PERMISSIONS': {
         'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
-        'user_list': ['rest_framework.permissions.AllowAny']
+        'user_list': ['rest_framework.permissions.AllowAny'],
     },
 }
