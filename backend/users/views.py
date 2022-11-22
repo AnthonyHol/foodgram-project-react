@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -13,12 +12,7 @@ from users.serializers import FollowListSerializer, FollowSerializer
 
 from .models import Follow, User
 from .serializers import CustomUserSerializer
-from rest_framework.pagination import PageNumberPagination
-
-
-class CustomPagination(PageNumberPagination):
-    page_size_query_param = 'limit'
-    page_size = 6
+from api.paginations import SixPagePagination
 
 
 class CustomUserViewSet(UserViewSet):
@@ -26,7 +20,7 @@ class CustomUserViewSet(UserViewSet):
     ViewSet для работы с пользователями.
     """
 
-    pagination_class = CustomPagination
+    pagination_class = SixPagePagination
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
