@@ -12,7 +12,7 @@ from rest_framework.permissions import (
 )
 from rest_framework import status
 from rest_framework.response import Response
-from users.models import Favorite
+from recipes.models import Favorite
 from rest_framework.decorators import action
 from django.http import HttpResponse
 

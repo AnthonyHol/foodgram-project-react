@@ -8,7 +8,7 @@ from recipes.models import (
 )
 from users.serializers import CustomUserSerializer
 from rest_framework.fields import SerializerMethodField, ReadOnlyField
-from users.models import Favorite
+from recipes.models import Favorite
 
 
 class TagSerializer(ModelSerializer):
