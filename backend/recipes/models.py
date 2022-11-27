@@ -11,7 +11,9 @@ class Ingredient(models.Model):
     name = models.CharField(
         max_length=200, verbose_name="Название ингридиента", db_index=True
     )
-    units = models.CharField(max_length=200, verbose_name="Единицы измерения")
+    measurement_unit = models.CharField(
+        max_length=200, verbose_name="Единицы измерения"
+    )
 
     class Meta:
         ordering = ("name",)
@@ -19,7 +21,7 @@ class Ingredient(models.Model):
         verbose_name_plural = "Ингредиенты"
 
     def __str__(self):
-        return f"{self.name}, {self.units}"
+        return f"{self.name}, {self.measurement_unit}"
 
 
 class Tag(models.Model):
@@ -49,7 +51,7 @@ class Recipe(models.Model):
     image = models.ImageField(
         blank=True, upload_to="recipes/images", verbose_name="Картинка"
     )
-    description = models.TextField(verbose_name="Описание")
+    text = models.TextField(verbose_name="Описание")
     pub_date = models.DateTimeField(
         verbose_name="Дата публикации", auto_now_add=True
     )
@@ -78,10 +80,16 @@ class Recipe(models.Model):
 
 class RecipeIngredients(models.Model):
     ingredient = models.ForeignKey(
-        Ingredient, on_delete=models.CASCADE, verbose_name="Ингредиенты"
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name="Ингредиенты",
+        related_name="recipe_ingredients",
     )
     recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE, verbose_name="Рецепт"
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name="Рецепт",
+        related_name="recipe_ingredients",
     )
     amount = models.IntegerField(
         validators=[
@@ -101,7 +109,7 @@ class RecipeIngredients(models.Model):
         verbose_name_plural = "Ингредиенты в рецепте"
 
 
-class ShoppingList(models.Model):
+class ShoppingCart(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

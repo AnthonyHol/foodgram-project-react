@@ -16,6 +16,9 @@ class User(AbstractUser):
     last_name = models.CharField("Фамилия", max_length=150, blank=True)
     email = models.EmailField(max_length=254, unique=True, null=False)
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+
     class Meta:
         ordering = ("-pk",)
         verbose_name = "Пользователь"

@@ -2,7 +2,12 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 
 from recipes.models import Tag, Ingredient, Recipe
-from .serializers import TagSerializer, IngredientSerializer, RecipeSerializer
+from .serializers import (
+    TagSerializer,
+    IngredientSerializer,
+    RecipeSerializer,
+    CreateRecipeSerializer,
+)
 from rest_framework.filters import SearchFilter
 from .permissions import IsAuthorOrAdminOrReadOnly
 from .paginations import SixPagePagination
@@ -41,15 +46,14 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """
-    ViewSet.
+    ViewSet для работы с рецептами.
     """
 
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthorOrAdminOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
     pagination_class = SixPagePagination
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return RecipeSerializer
-
-        # return CreateRecipeSerializer
+        return CreateRecipeSerializer
