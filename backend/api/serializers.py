@@ -148,9 +148,11 @@ class CreateRecipeSerializer(ModelSerializer):
         )
 
     def create(self, validated_data):
+        """
+        Метод создания рецепта.
+        """
         ingredients_data = self.initial_data.get('ingredients')
         tags = validated_data.pop('tags')
-
         recipe = Recipe.objects.create(
             author=self.context['request'].user, **validated_data
         )
@@ -158,7 +160,29 @@ class CreateRecipeSerializer(ModelSerializer):
         self.create_ingredients(ingredients_data, recipe)
 
         recipe.tags.set(tags)
+
         return recipe
+
+    def update(self, recipe, validated_data):
+        """
+        Метод изменения рецепта.
+        """
+        recipe.ingredients.clear()
+        recipe.tags.clear()
+
+        ingredients_data = self.initial_data.get('ingredients')
+        tags = validated_data.pop('tags')
+        recipe.tags.set(tags)
+
+        RecipeIngredients.objects.filter(recipe=recipe).all().delete()
+        self.create_ingredients(ingredients_data, recipe)
+
+        return super().update(recipe, validated_data)
+
+    def to_representation(self, instance):
+        return RecipeSerializer(
+            instance, context={'request': self.context.get('request')}
+        ).data
 
     class Meta:
         model = Recipe
