@@ -114,7 +114,7 @@ class IngredientsWriteSerializer(ModelSerializer):
     amount = IntegerField()
 
     class Meta:
-        model = RecipeIngredientsSerializer
+        model = RecipeIngredients
         fields = ('id', 'name', 'amount', 'measurement_unit')
 
     def to_representation(self, instance):
