@@ -4,7 +4,7 @@ from rest_framework.serializers import ModelSerializer
 from recipes.models import Recipe
 
 
-class FavoriteRecipe(ModelSerializer):
+class FavoriteRecipeSerializer(ModelSerializer):
     """
     Сериализатор для работы с избранными рецептами.
     """

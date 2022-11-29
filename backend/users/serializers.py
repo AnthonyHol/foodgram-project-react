@@ -7,7 +7,7 @@ from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
 from recipes.models import Recipe
-from recipes.serializers import FavoriteRecipe
+from recipes.serializers import FavoriteRecipeSerializer
 
 from .models import Follow, User
 
@@ -115,12 +115,12 @@ class FollowListSerializer(ModelSerializer):
         queryset = self.context.get("request")
         recipes_limit = queryset.query_params.get("recipes_limit")
         if not recipes_limit:
-            return FavoriteRecipe(
+            return FavoriteRecipeSerializer(
                 Recipe.objects.filter(author=author),
                 many=True,
                 context={"request": queryset},
             ).data
-        return FavoriteRecipe(
+        return FavoriteRecipeSerializer(
             Recipe.objects.filter(author=author)[: int(recipes_limit)],
             many=True,
             context={"request": queryset},

@@ -14,6 +14,8 @@ from rest_framework.fields import (
 from rest_framework.relations import PrimaryKeyRelatedField
 from recipes.models import Favorite
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework.exceptions import ValidationError
+from recipes.serializers import FavoriteRecipeSerializer
 
 
 class TagSerializer(ModelSerializer):
@@ -196,3 +198,53 @@ class CreateRecipeSerializer(ModelSerializer):
             'text',
             'cooking_time',
         )
+
+
+class ShoppingCartSerializer(ModelSerializer):
+    """
+    Сериализатор списка покупок.
+    """
+
+    class Meta:
+        model = ShoppingCart
+        fields = ('recipe', 'user')
+
+    def validate(self, data):
+        request = self.context.get('request')
+        recipe = data['recipe']
+
+        if ShoppingCart.objects.filter(
+            user=request.user, recipe=recipe
+        ).exists():
+            raise ValidationError({'errors': 'Рецепт уже есть в Корзине!'})
+
+        return data
+
+    def to_representation(self, instance):
+        return FavoriteRecipeSerializer(
+            instance.recipe, context={'request': self.context.get('request')}
+        ).data
+
+
+class FavoriteSerializer(ModelSerializer):
+    """
+    Сериализатор избранных рецептов.
+    """
+
+    class Meta:
+        model = Favorite
+        fields = ('user', 'recipe')
+
+    def validate(self, data):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        recipe = data['recipe']
+        if Favorite.objects.filter(user=request.user, recipe=recipe).exists():
+            raise ValidationError({'errors': 'Рецепт уже есть в Избранном!'})
+        return data
+
+    def to_representation(self, instance):
+        return FavoriteRecipeSerializer(
+            instance.recipe, context={'request': self.context.get('request')}
+        ).data
