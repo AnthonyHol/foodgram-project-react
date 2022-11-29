@@ -6,6 +6,7 @@ from .models import Follow, User
 @admin.register(User)
 class UsersAdmin(admin.ModelAdmin):
     list_display = (
+        "pk",
         "username",
         "email",
         "first_name",
@@ -19,7 +20,7 @@ class UsersAdmin(admin.ModelAdmin):
 
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
-    list_display = ("user", "author")
+    list_display = ("pk", "user", "author")
     list_display_links = ("user",)
     search_fields = ("user",)
     empty_value_display = "—"
