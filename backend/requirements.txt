@@ -1,6 +1,7 @@
 Django==3.2
 djangorestframework==3.14.0
 django_colorfield==0.7.2
+django-filter==22.1
 djoser==2.1.0
 isort==5.10.1
 black==22.10.0
