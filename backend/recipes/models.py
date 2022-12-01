@@ -49,7 +49,10 @@ class Recipe(models.Model):
     )
     name = models.CharField(max_length=200, verbose_name="Название рецепта")
     image = models.ImageField(
-        blank=True, upload_to="recipes/images", verbose_name="Картинка"
+        blank=True,
+        upload_to="recipes/",
+        verbose_name="Картинка",
+        null=True,
     )
     text = models.TextField(verbose_name="Описание")
     pub_date = models.DateTimeField(

@@ -1,13 +1,11 @@
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from drf_extra_fields.fields import Base64ImageField
+from recipes.models import Recipe
+from recipes.serializers import FavoriteRecipeSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
-
-from recipes.models import Recipe
-from recipes.serializers import FavoriteRecipeSerializer
 
 from .models import Follow, User
 
@@ -39,6 +37,12 @@ class CustomUserSerializer(UserSerializer):
         read_only=True, method_name="get_is_subscribed"
     )
 
+    def get_is_subscribed(self, obj):
+        user = self.context.get("request").user
+        if user.is_anonymous:
+            return False
+        return Follow.objects.filter(user=user, author=obj.id).exists()
+
     class Meta:
         model = User
         fields = (
@@ -50,21 +54,11 @@ class CustomUserSerializer(UserSerializer):
             "is_subscribed",
         )
 
-    def get_is_subscribed(self, obj):
-        user = self.context.get("request").user
-        if user.is_anonymous:
-            return False
-        return Follow.objects.filter(user=user, author=obj.id).exists()
-
 
 class FollowSerializer(ModelSerializer):
     """
     Сериализатор для подписки/отписки от пользователя.
     """
-
-    class Meta:
-        model = Follow
-        fields = ("user", "author")
 
     def validate(self, data):
         get_object_or_404(User, username=data["author"])
@@ -88,6 +82,10 @@ class FollowSerializer(ModelSerializer):
             instance.author, context={"request": self.context.get("request")}
         ).data
 
+    class Meta:
+        model = Follow
+        fields = ("user", "author")
+
 
 class FollowListSerializer(ModelSerializer):
     """
@@ -97,19 +95,6 @@ class FollowListSerializer(ModelSerializer):
     recipes = SerializerMethodField()
     recipes_count = SerializerMethodField()
     is_subscribed = SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = User
-        fields = (
-            "email",
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "is_subscribed",
-            "recipes",
-            "recipes_count",
-        )
 
     def get_recipes(self, author):
         queryset = self.context.get("request")
@@ -133,3 +118,16 @@ class FollowListSerializer(ModelSerializer):
         return Follow.objects.filter(
             user=self.context.get("request").user, author=author
         ).exists()
+
+    class Meta:
+        model = User
+        fields = (
+            "email",
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "is_subscribed",
+            "recipes",
+            "recipes_count",
+        )

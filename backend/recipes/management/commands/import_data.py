@@ -2,7 +2,6 @@ import csv
 from pathlib import Path
 
 from django.core.management.base import BaseCommand
-
 from foodgram.settings import BASE_DIR
 from recipes.models import Ingredient
 
@@ -20,7 +19,7 @@ class Command(BaseCommand):
 
                 for row in reader:
                     status, created = Ingredient.objects.update_or_create(
-                        name=row[0], units=row[1]
+                        name=row[0], measurement_unit=row[1]
                     )
             print("Парсинг успешно завершен.")
 
