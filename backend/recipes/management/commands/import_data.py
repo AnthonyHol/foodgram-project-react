@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 from foodgram.settings import BASE_DIR
 from recipes.models import Ingredient
 
+
 PATH_TO_DATA = Path(BASE_DIR).resolve().joinpath("data") / "ingredients.csv"
 
 
