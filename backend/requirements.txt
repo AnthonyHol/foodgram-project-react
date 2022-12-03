@@ -19,3 +19,4 @@ flake8-broken-line
 flake8-return
 flake8-isort
 django_colorfield==0.7.2
+python-dotenv==0.20.0
