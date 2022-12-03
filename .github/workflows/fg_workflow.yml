@@ -93,6 +93,8 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
 
         script: |
+          cd ./foodgram-project-react/infra/
+          
           sudo rm .env
           sudo touch .env
           echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
