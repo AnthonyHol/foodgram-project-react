@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (
     Favorite,
@@ -8,7 +9,6 @@ from recipes.models import (
     Tag,
 )
 from recipes.serializers import FavoriteRecipeSerializer
-from rest_framework.exceptions import ValidationError
 from rest_framework.fields import ReadOnlyField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import (
@@ -61,6 +61,9 @@ class RecipeSerializer(ModelSerializer):
 
     tags = TagSerializer(many=True)
     author = CustomUserSerializer(read_only=True)
+    ingredients = RecipeIngredientsSerializer(
+        many=True, required=True, source="recipe"
+    )
     ingredients = SerializerMethodField(method_name="get_ingredients")
     is_favorited = SerializerMethodField(method_name="get_is_favorited")
     is_in_shopping_cart = SerializerMethodField(
@@ -135,35 +138,36 @@ class CreateRecipeSerializer(ModelSerializer):
     image = Base64ImageField(use_url=True, required=False)
 
     def validate(self, data):
-        ingredients_data = self.initial_data.get("ingredients")
-        cooking_time_data = self.initial_data.get("cooking_time")
+        ingredients = data["ingredients"]
+        ingredient_list = []
 
-        if not ingredients_data:
-            raise ValidationError('Добавьте хотя бы один ингредиент!')
-
-        if cooking_time_data < 1:
-            raise ValidationError(
-                'Время приготовления не может быть меньше 1!'
-            )
-
-        ingredients_list = []
-        for ingredient in ingredients_data:
-            ingredient_id = ingredient['id']
-            try:
-                int(ingredient['amount'])
-            except ValueError:
-                raise ValidationError(
-                    'Количество ингредиентов может быть только целым числом!'
-                )
-            if int(ingredient['amount']) <= 0:
-                raise ValidationError(
-                    'Количество ингредиентов не может быть меньше 0!'
-                )
-            if ingredient_id in ingredients_list:
-                raise ValidationError('Ингредиент не может дублироваться!')
-            ingredients_list.append(ingredient_id)
+        for items in ingredients:
+            ingredient = get_object_or_404(Ingredient, id=items["id"])
+            if ingredient in ingredient_list:
+                raise ValidationError("Ингредиент не должен повторяться!")
+            ingredient_list.append(ingredient)
 
         return data
+
+    def validate_cooking_time(self, cooking_time):
+        if int(cooking_time) < 1:
+            raise ValidationError(
+                'Время приготовления должно быть хотя бы минута!'
+            )
+
+        return cooking_time
+
+    def validate_ingredients(self, ingredients):
+        if not ingredients:
+            raise ValidationError('Требуется хотя бы один ингредиент!')
+
+        for ingredient in ingredients:
+            if int(ingredient.get('amount')) < 1:
+                raise ValidationError(
+                    'Количество ингредиента должно быть >= 1!'
+                )
+
+        return ingredients
 
     def create_ingredients(self, ingredients, recipe):
         RecipeIngredients.objects.bulk_create(
