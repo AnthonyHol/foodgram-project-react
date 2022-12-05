@@ -1,11 +1,22 @@
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredients,
-                            ShoppingCart, Tag)
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredients,
+    ShoppingCart,
+    Tag,
+)
 from recipes.serializers import FavoriteRecipeSerializer
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import ReadOnlyField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
-from rest_framework.serializers import CharField, IntegerField, ModelSerializer
+from rest_framework.serializers import (
+    CharField,
+    IntegerField,
+    ModelSerializer,
+    ValidationError,
+)
 from users.serializers import CustomUserSerializer
 
 
@@ -106,11 +117,6 @@ class IngredientsWriteSerializer(ModelSerializer):
     measurement_unit = IntegerField(required=False)
     amount = IntegerField()
 
-    def to_representation(self, instance):
-        data = IngredientSerializer(instance.ingredient).data
-        data["amount"] = instance.amount
-        return data
-
     class Meta:
         model = RecipeIngredients
         fields = ("id", "name", "amount", "measurement_unit")
@@ -127,6 +133,37 @@ class CreateRecipeSerializer(ModelSerializer):
     )
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
     image = Base64ImageField(use_url=True, required=False)
+
+    def validate(self, data):
+        ingredients_data = self.initial_data.get("ingredients")
+        cooking_time_data = self.initial_data.get("cooking_time")
+
+        if not ingredients_data:
+            raise ValidationError('Добавьте хотя бы один ингредиент!')
+
+        if cooking_time_data < 1:
+            raise ValidationError(
+                'Время приготовления не может быть меньше 1!'
+            )
+
+        ingredients_list = []
+        for ingredient in ingredients_data:
+            ingredient_id = ingredient['id']
+            try:
+                int(ingredient['amount'])
+            except ValueError:
+                raise ValidationError(
+                    'Количество ингредиентов может быть только целым числом!'
+                )
+            if int(ingredient['amount']) <= 0:
+                raise ValidationError(
+                    'Количество ингредиентов не может быть меньше 0!'
+                )
+            if ingredient_id in ingredients_list:
+                raise ValidationError('Ингредиент не может дублироваться!')
+            ingredients_list.append(ingredient_id)
+
+        return data
 
     def create_ingredients(self, ingredients, recipe):
         RecipeIngredients.objects.bulk_create(
