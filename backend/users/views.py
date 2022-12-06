@@ -1,4 +1,3 @@
-from api.paginations import SixPagePagination
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -8,6 +7,8 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 from rest_framework.response import Response
+
+from api.paginations import SixPagePagination
 from users.serializers import FollowListSerializer, FollowSerializer
 
 from .models import Follow, User

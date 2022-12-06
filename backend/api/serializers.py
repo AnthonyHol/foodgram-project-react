@@ -1,5 +1,14 @@
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework.fields import ReadOnlyField, SerializerMethodField
+from rest_framework.relations import PrimaryKeyRelatedField
+from rest_framework.serializers import (
+    CharField,
+    IntegerField,
+    ModelSerializer,
+    ValidationError,
+)
+
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -9,14 +18,6 @@ from recipes.models import (
     Tag,
 )
 from recipes.serializers import FavoriteRecipeSerializer
-from rest_framework.fields import ReadOnlyField, SerializerMethodField
-from rest_framework.relations import PrimaryKeyRelatedField
-from rest_framework.serializers import (
-    CharField,
-    IntegerField,
-    ModelSerializer,
-    ValidationError,
-)
 from users.serializers import CustomUserSerializer
 
 
