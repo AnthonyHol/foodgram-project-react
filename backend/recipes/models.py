@@ -23,7 +23,7 @@ class Ingredient(models.Model):
         constraints = [
             UniqueConstraint(
                 fields=("name", "measurement_unit"),
-                name="name_unit_unique",
+                name="name_measurement_unit_unique",
             )
         ]
 
@@ -93,13 +93,11 @@ class RecipeIngredients(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
         verbose_name="Ингредиенты",
-        related_name="recipe_ingredients",
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         verbose_name="Рецепт",
-        related_name="recipe_ingredients",
     )
     amount = models.IntegerField(
         validators=[
