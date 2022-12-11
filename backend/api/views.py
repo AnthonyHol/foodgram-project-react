@@ -28,10 +28,10 @@ from .permissions import IsAuthorOrAdminOrReadOnly
 from .serializers import (
     CreateRecipeSerializer,
     FavoriteSerializer,
-    IngredientSerializer,
+    IngredientsSerializer,
     RecipeSerializer,
     ShoppingCartSerializer,
-    TagSerializer,
+    TagsSerializer,
 )
 
 
@@ -40,7 +40,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     ViewSet для работы с тегами.
     """
 
-    serializer_class = TagSerializer
+    serializer_class = TagsSerializer
     queryset = Tag.objects.all()
     permission_classes = (AllowAny,)
 
@@ -50,7 +50,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     ViewSet для работы с ингредиентами.
     """
 
-    serializer_class = IngredientSerializer
+    serializer_class = IngredientsSerializer
     queryset = Ingredient.objects.all()
     permission_classes = (AllowAny,)
     filter_backends = (IngredientFilter,)
