@@ -9,8 +9,10 @@ router_v1.register("users", CustomUserViewSet, basename="users")
 
 urlpatterns = [
     path(
-        "users/<int:user_id>/subscribe/",
-        CustomUserViewSet.as_view({"post": "subscribe"}),
+        "users/<int:id>/subscribe/",
+        CustomUserViewSet.as_view(
+            {"post": "subscribe", "delete": "subscribe"}
+        ),
         name="subscribe",
     ),
     path("", include(router_v1.urls)),

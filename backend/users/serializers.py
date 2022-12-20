@@ -88,11 +88,16 @@ class FollowSerializer(ModelSerializer):
         fields = ("user", "author")
 
 
-class FollowListSerializer(ModelSerializer):
+class FollowListSerializer(CustomUserSerializer):
     """
     Сериализатор для работы со списком подписок.
     """
 
+    email = serializers.ReadOnlyField(source='author.email')
+    id = serializers.ReadOnlyField(source='author.id')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
     recipes = SerializerMethodField()
     recipes_count = SerializerMethodField()
     is_subscribed = SerializerMethodField(read_only=True)

@@ -33,39 +33,94 @@ class CustomUserViewSet(UserViewSet):
         self.get_object = self.get_instance
         return self.retrieve(request, *args, **kwargs)
 
-    @action(methods=["get"], detail=False)
+    @action(
+        detail=False,
+        methods=["GET"],
+        permission_classes=[IsAuthenticatedOrReadOnly],
+    )
     def subscriptions(self, request):
         """
-        Отображение списка пользователей,
+        Метод отображение списка пользователей,
         на которых подписан текущий пользователь.
         """
         subscriptions_list = self.paginate_queryset(
             User.objects.filter(following__user=request.user)
         )
         serializer = FollowListSerializer(
-            subscriptions_list, many=True, context={"request": request}
+            subscriptions_list, many=True, context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
 
-    @action(methods=["post, delete"], detail=False)
-    def subscribe(self, request):
+    @action(
+        detail=True,
+        methods=["POST", "DELETE"],
+        url_path="subscribe",
+        permission_classes=[IsAuthenticatedOrReadOnly],
+    )
+    def subscribe(self, request, id=None):
         """
-        Подписаться/отписаться от пользователя.
+        Метод для подписки/отписки от пользователя.
         """
+        user = get_object_or_404(User, id=id)
+        follow = Follow.objects.filter(user=request.user, author=user)
+
         if request.method == "POST":
-            serializer = FollowSerializer(
-                data={
-                    "user": request.user.id,
-                    "author": get_object_or_404(User, id=id).id,
-                },
-                context={"request": request},
+            if user == request.user:
+                error = {"errors": "Нельзя подписаться на самого себя!"}
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            obj, created = Follow.objects.get_or_create(
+                user=request.user, author=user
             )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+
+            if not created:
+                error = {"errors": "Вы уже подписаны на этого пользователя!"}
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            serializer = FollowSerializer(obj, context={"request": request})
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        subscription = get_object_or_404(
-            Follow, author=get_object_or_404(User, id=id), user=request.user
-        )
-        self.perform_destroy(subscription)
+        if not follow.exists():
+            error = {"errors": "Вы не подписаны на этого пользователя!"}
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+        follow.delete()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    # @action(methods=["get"], detail=False)
+    # def subscriptions(self, request):
+    #     """
+    #     Отображение списка пользователей,
+    #     на которых подписан текущий пользователь.
+    #     """
+    #     subscriptions_list = self.paginate_queryset(
+    #         User.objects.filter(following__user=request.user)
+    #     )
+    #     serializer = FollowListSerializer(
+    #         subscriptions_list, many=True, context={"request": request}
+    #     )
+
+    #     return self.get_paginated_response(serializer.data)
+
+    # @action(methods=["post, delete"], detail=False)
+    # def subscribe(self, request):
+    #     """
+    #     Подписаться/отписаться от пользователя.
+    #     """
+    #     if request.method == "POST":
+    #         serializer = FollowSerializer(
+    #             data={
+    #                 "user": request.user.id,
+    #                 "author": get_object_or_404(User, id=id).id,
+    #             },
+    #             context={"request": request},
+    #         )
+    #         serializer.is_valid(raise_exception=True)
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    #     subscription = get_object_or_404(
+    #         Follow, author=get_object_or_404(User, id=id), user=request.user
+    #     )
+    #     self.perform_destroy(subscription)
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
