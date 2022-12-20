@@ -13,13 +13,23 @@ router.register("recipes", RecipeViewSet, basename="recipes")
 urlpatterns = [
     path(
         "recipes/<int:pk>/shopping_cart/",
-        RecipeViewSet.as_view({"get": "shopping_cart"}),
+        RecipeViewSet.as_view(
+            {
+                "post": "shopping_cart",
+                "delete": "shopping_cart",
+            }
+        ),
         name="shopping_cart",
     ),
     path(
         "recipes/<int:pk>/favorite/",
         RecipeViewSet.as_view({"post": "favorite", "delete": "favorite"}),
         name="favorite_recipe",
+    ),
+    path(
+        "recipes/download_shopping_cart/",
+        RecipeViewSet.as_view({"get": "download_shopping_cart"}),
+        name="download_shopping_cart",
     ),
     path("", include(router.urls)),
 ]
