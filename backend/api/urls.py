@@ -13,7 +13,7 @@ router.register("recipes", RecipeViewSet, basename="recipes")
 urlpatterns = [
     path(
         "recipes/<int:pk>/shopping_cart/",
-        RecipeViewSet.as_view({"post": "shopping_cart"}),
+        RecipeViewSet.as_view({"get": "shopping_cart"}),
         name="shopping_cart",
     ),
     path(

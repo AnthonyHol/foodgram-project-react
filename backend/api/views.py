@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.db.models import Sum
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -21,6 +22,7 @@ from recipes.models import (
     ShoppingCart,
     Tag,
 )
+from recipes.serializers import FavoriteRecipeSerializer
 
 from .filters import IngredientFilter, RecipeFilter
 from .paginations import SixPagePagination
@@ -92,9 +94,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        obj = ShoppingCart.objects.filter(user=request.user, recipe__id=pk)
-        if obj.exists():
-            obj.delete()
+        cart = ShoppingCart.objects.filter(user=request.user, recipe__id=pk)
+
+        if cart.exists():
+            cart.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         return Response(

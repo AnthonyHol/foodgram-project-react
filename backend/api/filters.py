@@ -1,6 +1,7 @@
 from django_filters import rest_framework
 from recipes.models import Recipe, Tag
 from rest_framework.filters import SearchFilter
+from users.models import User
 
 
 class RecipeFilter(rest_framework.FilterSet):
@@ -19,18 +20,18 @@ class RecipeFilter(rest_framework.FilterSet):
     def get_favorite(self, queryset, name, value):
         user = self.request.user
         if value and not user.is_anonymous:
-            return queryset.filter(favorites__author=self.request.user)
+            return queryset.filter(favorites__user=self.request.user)
         return queryset
 
     def get_is_in_shopping_cart(self, queryset, name, value):
         user = self.request.user
         if value and not user.is_anonymous:
-            return queryset.filter(shopping_list__author=self.request.user)
+            return queryset.filter(shopping_list__user=self.request.user)
         return queryset
 
     class Meta:
         model = Recipe
-        fields = ("tags", "author")
+        fields = ('tags', 'author')
 
 
 class IngredientFilter(SearchFilter):
