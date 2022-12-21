@@ -114,7 +114,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-MEDIA_URL = "http://localhost/media/"
+MEDIA_URL = "http://158.160.10.39:3001/media/"
 # MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
