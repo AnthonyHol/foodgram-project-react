@@ -1,3 +1,4 @@
+from api.paginations import SixPagePagination
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -7,8 +8,6 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 from rest_framework.response import Response
-
-from api.paginations import SixPagePagination
 from users.serializers import FollowListSerializer, FollowSerializer
 
 from .models import Follow, User
@@ -49,7 +48,7 @@ class CustomUserViewSet(UserViewSet):
             User.objects.filter(following__user=request.user)
         )
         serializer = FollowListSerializer(
-            subscriptions_list, many=True, context={'request': request}
+            subscriptions_list, many=True, context={"request": request}
         )
         return self.get_paginated_response(serializer.data)
 

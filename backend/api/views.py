@@ -2,8 +2,15 @@ from datetime import datetime
 
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredients,
+    ShoppingCart,
+    Tag,
+)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -13,16 +20,6 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
-
-from recipes.models import (
-    Favorite,
-    Ingredient,
-    Recipe,
-    RecipeIngredients,
-    ShoppingCart,
-    Tag,
-)
-from recipes.serializers import FavoriteRecipeSerializer
 
 from .filters import IngredientFilter, RecipeFilter
 from .paginations import SixPagePagination
