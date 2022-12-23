@@ -1,18 +1,10 @@
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (
-    Favorite,
-    Ingredient,
-    Recipe,
-    RecipeIngredients,
-    ShoppingCart,
-    Tag,
-)
 from rest_framework.fields import ReadOnlyField, SerializerMethodField
-from rest_framework.serializers import (
-    IntegerField,
-    ModelSerializer,
-    ValidationError,
-)
+from rest_framework.serializers import (IntegerField, ModelSerializer,
+                                        ValidationError)
+
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredients,
+                            ShoppingCart, Tag)
 from users.serializers import CustomUserSerializer
 
 
@@ -141,16 +133,20 @@ class CreateRecipeSerializer(ModelSerializer):
 
         return data
 
-    def create_ingridients(self, ingredients_data, recipe):
+    def create_ingredients(self, ingredients, recipe):
         """
         Метод создания ингредиентов для рецепта.
         """
-        for ingredient in ingredients_data:
-            RecipeIngredients(
-                recipe=recipe,
-                ingredient_id=ingredient["id"],
-                amount=ingredient.get("amount"),
-            ).save()
+        RecipeIngredients.objects.bulk_create(
+            [
+                RecipeIngredients(
+                    ingredient=Ingredient.objects.get(id=ingredient["id"]),
+                    recipe=recipe,
+                    amount=ingredient["amount"],
+                )
+                for ingredient in ingredients
+            ]
+        )
 
     def create(self, validated_data):
         """
@@ -163,7 +159,7 @@ class CreateRecipeSerializer(ModelSerializer):
             author=self.context["request"].user, **validated_data
         )
 
-        self.create_ingridients(ingredients_data, recipe)
+        self.create_ingredients(ingredients_data, recipe)
         recipe.tags.set(tags)
 
         return recipe
@@ -179,7 +175,7 @@ class CreateRecipeSerializer(ModelSerializer):
         recipe.tags.set(tags)
         RecipeIngredients.objects.filter(recipe=recipe).all().delete()
 
-        self.create_ingridients(ingredients_data, recipe)
+        self.create_ingredients(ingredients_data, recipe)
 
         return super().update(recipe, validated_data)
 

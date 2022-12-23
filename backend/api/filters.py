@@ -1,6 +1,7 @@
 from django_filters import rest_framework
-from recipes.models import Recipe, Tag
 from rest_framework.filters import SearchFilter
+
+from recipes.models import Recipe, Tag
 
 
 class RecipeFilter(rest_framework.FilterSet):

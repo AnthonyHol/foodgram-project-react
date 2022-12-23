@@ -3,14 +3,6 @@ from datetime import datetime
 from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import (
-    Favorite,
-    Ingredient,
-    Recipe,
-    RecipeIngredients,
-    ShoppingCart,
-    Tag,
-)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -20,6 +12,15 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
+
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredients,
+    ShoppingCart,
+    Tag,
+)
 
 from .filters import IngredientFilter, RecipeFilter
 from .paginations import SixPagePagination
@@ -104,7 +105,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=["POST", "DELETE"],
+        methods=("POST", "DELETE"),
         permission_classes=[IsAuthenticatedOrReadOnly],
     )
     def favorite(self, request, pk=None):
@@ -140,6 +141,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         Метод для скачивания корзины покупок.
         """
         user = request.user
+
         if not user.shopping_list.exists():
             return Response(status=HTTP_400_BAD_REQUEST)
 
@@ -156,6 +158,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             f"Список покупок для: {user.get_full_name()}\n\n"
             f"Дата: {today:%Y-%m-%d}\n\n"
         )
+
         shopping_list += "\n".join(
             [
                 f'- {ingredient["ingredient__name"]} '
@@ -164,9 +167,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 for ingredient in ingredients
             ]
         )
+
         shopping_list += f"\n\nFoodgram ({today:%Y})"
 
         filename = f"{user.username}_shopping_list.txt"
         response = HttpResponse(shopping_list, content_type="text/plain")
         response["Content-Disposition"] = f"attachment; filename={filename}"
+
         return response
