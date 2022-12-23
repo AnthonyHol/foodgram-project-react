@@ -25,7 +25,9 @@ class CustomUserViewSet(UserViewSet):
     serializer_class = CustomUserSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    @action(methods="GET", detail=False, permission_classes=[IsAuthenticated])
+    @action(
+        methods=["GET"], detail=False, permission_classes=[IsAuthenticated]
+    )
     def me(self, request, *args, **kwargs):
         """
         Отображение информации о текущем пользователе
@@ -36,7 +38,7 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=False,
-        methods="GET",
+        methods=["GET"],
         permission_classes=[IsAuthenticatedOrReadOnly],
     )
     def subscriptions(self, request):
@@ -55,7 +57,7 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=True,
-        methods=("POST", "DELETE"),
+        methods=["POST", "DELETE"],
         url_path="subscribe",
         permission_classes=[IsAuthenticatedOrReadOnly],
     )
